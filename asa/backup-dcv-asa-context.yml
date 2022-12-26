@@ -1,0 +1,72 @@
+---
+## Playbook to get system time and append it to backup files
+
+- hosts: asa5585
+  connection: local
+  gather_facts: false
+  become_method: enable
+  become: yes
+
+  tasks:
+    - name: Realizando backup do ASA-5585 (Firewall Perimentral)
+      asa_command:
+        commands:
+        - show running-config
+      register: config
+
+    - name: Take backup
+      asa_config:
+       backup: yes
+       backup_options:
+        dir_path: "/files/backups/mgmt-arq-cloud/"
+        filename: "{{ inventory_hostname }}.cfg"
+
+
+- hosts: asasm
+  connection: network_cli
+  gather_facts: false
+  become_method: enable
+  become: yes
+
+
+  tasks:
+   - name: Show Running Config - Firewall de Clientes - (bsl-vfw-asa01 and bsl-vfw-asa02) sem contextos de clientes
+     asa_command:
+       commands: show running-config
+     register: config
+
+   - name: Realizando Backup ASA-SM-6500 (bsl-vfw-asa01 and bsl-vfw-asa02) sem os contextos de Clientes
+     copy:
+       content: "{{config.stdout[0]}}"
+       dest: "/files/backups/mgmt-arq-cloud/{{ inventory_hostname }}.cfg"
+
+- hosts: asasm
+  connection: network_cli
+  gather_facts: false
+  become_method: enable
+  become: yes
+
+  tasks:
+    - name: Scan nos contextos de clientes no ASASM 6500 (bsl-vfw-asa01 and bsl-vfw-asa02)
+      block:
+        - name: Show running de cada contexto no ASASM
+          asa_command:
+            commands:
+              - changeto system
+              - show run context | inc context
+#              - more system:running-config
+          register: var_contexts_names
+
+        - name: Realizando Backup no ASA-SM de todos os contextos existentes (bsl-vfw-asa01 and bsl-vfw-asa02)
+          asa_config:
+            context: "{{ item.split(' ')[1] }}"
+            backup: yes
+            backup_options:
+              dir_path: "/files/backups/mgmt-arq-cloud/"
+              filename: "{{ inventory_hostname }}-{{ item.split(' ')[1] }}.cfg"
+          loop:
+            "{{ var_contexts_names.stdout_lines[1] }}"
+      when:
+        - ansible_network_os == 'asa'
+
+

@@ -1,0 +1,8 @@
+.env
+hostname.txt
+*.cfg
+/a10/hostname.txt
+/a10/show_partitions.txt
+devices*
+router.db
+

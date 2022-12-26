@@ -1,0 +1,22 @@
+---
+## Playbook to get system time and append it to backup files
+
+- hosts: asa5585
+  connection: local
+  gather_facts: false
+  become_method: enable
+  become: yes
+
+  tasks:
+    - name: Backup ASASM
+      asa_command:
+        commands:
+        - show running-config
+      register: config
+
+    - name: Take backup
+      asa_config:
+       backup: yes
+       backup_options:
+        dir_path: "/files/backups/mgmt-arq-cloud/{{ hostvars.localhost.DTG }}"
+        filename: "{{ inventory_hostname }}.cfg"

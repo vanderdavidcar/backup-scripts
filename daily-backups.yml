@@ -1,0 +1,26 @@
+---
+#Playbook to get system time and append it to backup files
+
+- hosts: localhost
+
+  tasks:
+   - name: Get ansible date/time facts
+     setup:
+       filter: "ansible_date_time.date"
+       gather_subset: "!all"
+
+   - name: Store DTG as fact
+     set_fact:
+       DTG: "{{ ansible_date_time.date }}"
+
+   - name: Create DATE Directory 
+     file:
+      path: "/files/backups/mgmt-arq-cloud/{{ hostvars.localhost.DTG }}"
+      state: directory
+  run_once: true
+
+- hosts: localhost
+  
+  tasks:
+  - name: Coping all backups in the path below every day
+    shell: cd /files/backups/mgmt-arq-cloud/ && cp *.cfg br* bsl-pes-fw01 bsl-pes-fw02 bsl-ses-sw01 bsl-vfw-asa01 bsl-vfw-asa02 ebt-fw* equinix* sw-paci* vdc* fw-pa* /files/backups/mgmt-arq-cloud/$(date '+%Y-%m-%d')
