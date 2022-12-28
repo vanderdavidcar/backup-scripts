@@ -1,62 +1,47 @@
 from netmiko import ConnectHandler
-from datetime import date
 import net_conn
-import os
 import re
 
-#Import dotenv to manage user/passwd 
-from dotenv import load_dotenv
-load_dotenv()  # take environment variables from .env
-
-# Current time and formats it to the North American time of Month, Day, and Year.
-now = date.today()
-
-username = os.getenv("USERNAME")
-password = os.getenv("PASSWORD")
-secret = os.getenv("SECRET")
-
+hosts = ['bsl-vfw-asa01', 'bsl-vfw-asa02']
 def bkp_asaperimetral():
-    with open('hostname.txt') as f:
-        devices_list = f.read().splitlines()
-
-    for ip in devices_list:
+    for ip in hosts:
+        print(ip)
         ios_device = net_conn.netmiko_ios(ip)
         net_connect = ConnectHandler(**ios_device)
 
         # Show running in a single devices
         asaperimentral = net_connect.send_command('show running-config')
         print(asaperimentral)
-        backupFile = open(f'/files/backups/mgmt-arq-cloud/{ip}', "w+")
+        backupFile = open(f'/files/backups/mgmt-arq-cloud/{ip}.cfg', "w+")
         backupFile.write(asaperimentral)
         print(f"Outputted to {ip}.cfg")
 bkp_asaperimetral()
 
-
 def bkp_contexts():
-    with open('hostname.txt') as f:
-        devices_list = f.read().splitlines()
-
-    for ip in devices_list:
-        ios_device = net_conn.netmiko_ios(ip)
+    for ip in hosts:
+        print(ip)
+        ios_device = net_conn.netmiko_asa(ip)
         net_connect = ConnectHandler(**ios_device)
+        net_connect.enable()
 
-    # Try to create a regex pattern instead of splip
-    multicontext = net_connect.send_command('changeto system')
-    context_count = net_connect.send_command('show context count')
-    multicontext = net_connect.send_command('show context | in context')
-    print(multicontext)
-    partitions_pattern = re.compile(r"context (?P<contexts>(\S+)")
-    partitions_match = partitions_pattern.search(multicontext)
-    print(partitions_match)
-    contexts = re.findall(partitions_pattern, multicontext)
-    print(contexts)
+        changeto = net_connect.send_command('changeto system')
+        context_count = net_connect.send_command('show context count')
+        print(context_count)
+
+        multicontext = net_connect.send_command('show run context | in context')
+        
+        # Regex pattern to find contexts in device
+        regex = re.compile(r"context (?P<contexts>\S+)")
+        match = regex.search(multicontext)
+        contexts = re.findall(regex, multicontext)
+        print(contexts)
 
     for i in contexts:    
         print (i)
-        multiples_contexts = net_connect.send_command(f"show running-config {i}")
-        show_partitions = multiples_contexts
-        backupFile = open(f"/files/backups/mgmt-arq-cloud/{i}.cfg", "w+")
+        changeto_context = net_connect.send_command(f"changeto context {i}")
+        showrun_contexts = net_connect.send_command("show running-config")
+        backupFile = open(f'/files/backups/mgmt-arq-cloud/{ip}.cfg', "w+")
         backupFile.write(i)
-        print("Outputted to " + i + ".cfg")
-        print(show_partitions)
+        print(f"Outputted to {i}.cfg")
+        print(showrun_contexts)
 bkp_contexts()
