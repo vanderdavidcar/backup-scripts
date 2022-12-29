@@ -1,8 +1,9 @@
 .env
-hostname.txt
 *.cfg
-/a10/hostname.txt
-/a10/show_partitions.txt
 devices*
 router.db
+check_version.py
+lab
+net_conn.py
+daily-backups.yml
 
