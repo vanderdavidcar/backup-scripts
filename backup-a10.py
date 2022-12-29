@@ -11,12 +11,12 @@ load_dotenv()  # take environment variables from .env
 # Current time and formats it to the North American time of Month, Day, and Year.
 now = date.today()
 
-username = os.getenv("USERNAME")
-password = os.getenv("PASSWORD")
+username = os.getenv("USERA10")
+password = os.getenv("PASSA10")
 secret = os.getenv("SECRET")
 
 def a10_show_run_single_dev():
-    with open('hostname.txt') as f:
+    with open('devices') as f:
         devices_list = f.read().splitlines()
 
     for ip in devices_list:
@@ -33,7 +33,7 @@ a10_show_run_single_dev()
 
 
 def a10_show_run_partitions():
-    with open('hostname.txt') as f:
+    with open('devices') as f:
         devices_list = f.read().splitlines()
 
     for ip in devices_list:
