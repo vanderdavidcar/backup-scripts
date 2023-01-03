@@ -8,7 +8,7 @@ import os
 
 username = os.getenv("USERNAME")
 passwd = os.getenv("PASSWD")
-secret = os.getenv("SECRET")
+
 
 user_lab = os.getenv("USER_LAB")
 pass_lab = os.getenv("PASS_LAB")
@@ -27,7 +27,7 @@ def netmiko_a10(ip):
             'ip': ip,
             'username': username,
             'password': passwd,
-            'secret': secret
+            'secret': passwd
              }
 
 # IOS-XR module works from many softwares as IOS, IOS-XR, NXOS, DellOS10
@@ -37,4 +37,13 @@ def netmiko_iosxr(ip):
             'ip': ip,
             'username': username,
             'password': passwd,
+             }
+
+def netmiko_asa(ip):
+    return {
+            'device_type': 'cisco_asa',
+            'ip': ip,
+            'username': username,
+            'password': passwd,
+            'secret': passwd
              }
