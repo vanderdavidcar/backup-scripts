@@ -11,46 +11,39 @@ load_dotenv()  # take environment variables from .env
 # Current time and formats it to the North American time of Month, Day, and Year.
 now = date.today()
 
-username = os.getenv("USERNAME")
-password = os.getenv("PASSWORD")
-secret = os.getenv("SECRET")
+devices = ["TH3030S-1", "TH3030S-2"]
 
 def a10_show_run_single_dev():
-    with open('hostname.txt') as f:
-        devices_list = f.read().splitlines()
-
-    for ip in devices_list:
+    for ip in devices:
         ios_device = net_conn.netmiko_a10(ip)
         net_connect = ConnectHandler(**ios_device)
-
+        print(f"Outputted to {ip}.cfg")
         # Show running in a single devices TH3030S-1.cfg / TH3030S-2.cfg
         single_partition = net_connect.send_command('show running-config')
         print(single_partition)
-        #backupFile = open('/files/backups/mgmt-arq-cloud/' + ip + ".cfg", "w+")
-        backupFile = open('/mnt/c/vanderson/codes/projetos-git/public/bkp-scripts/a10' + ip + ".cfg", "w+")
+        #backupFile = open(f'/files/backups/mgmt-arq-cloud/{ip}.cfg', "w+")
+        backupFile = open(f'/mnt/c/vanderson/codes/projetos-git/public/backup-scripts/{ip}.cfg', "w+")
         backupFile.write(single_partition)
-        print("Outputted to " + ip + ".cfg")
 a10_show_run_single_dev()
 
 
 def a10_show_run_partitions():
-    with open('hostname.txt') as f:
-        devices_list = f.read().splitlines()
-
-    for ip in devices_list:
+    for ip in devices:
         ios_device = net_conn.netmiko_a10(ip)
         net_connect = ConnectHandler(**ios_device)
+        print(f"Outputted to {ip}.cfg")
+        # Try to create a regex pattern instead of splip
+        multicontext = net_connect.send_command('show partition')
+        file = open('show_partitions.txt', "w+")
+        file.write(multicontext)
 
-    # Try to create a regex pattern instead of splip
-    #multicontext = net_connect.send_command('show partition')
-    #print(multicontext)
-    #partitions_pattern = re.compile(r"(?P<partitions>^\S+(\s+Yes))")
-    #partitions_match = partitions_pattern.search(multicontext)
-    #print(partitions_match)
-    #partitions = re.findall(partitions_pattern, multicontext)
-    #print(partitions)
+        #partitions_pattern = re.compile(r"(?P<partitions>^\S+(\s+Yes))")
+        #partitions_match = partitions_pattern.search(multicontext)
+        #print(partitions_match)
+        #partitions = re.findall(partitions_pattern, multicontext)
+        #print(partitions)
 
-    with open(r"show_partitions.txt") as n:
+        n = open(r"show_partitions.txt")
         output_partition = n.read().splitlines()
         output_del_lines = output_partition[6:]
         new_list = ' '.join(output_del_lines)
@@ -58,12 +51,13 @@ def a10_show_run_partitions():
         output_partition2 = output_split[0::5]
         print(output_partition2)
 
-    for i in output_partition2:    
-        print (i)
-        multiples_partitions = net_connect.send_command("show running-config partition " + i)
-        show_partitions = multiples_partitions
-        backupFile = open('/mnt/c/vanderson/codes/projetos-git/public/bkp-scripts/' + i + ".cfg", "w+")
-        backupFile.write(i)
-        print("Outputted to " + i + ".cfg")
-        print(show_partitions)
+    for i in output_partition2:
+        for hosts in devices:
+            print(f"Outputted to {i}.cfg")
+            multiples_partitions = net_connect.send_command(f"show running-config partition {i}")
+            print(multiples_partitions)
+            #backupFile = open(f'/files/backups/mgmt-arq-cloud/A10-{hosts}-{ip}.cfg', "w+")
+            backupFile = open(f'/mnt/c/vanderson/codes/projetos-git/public/backup-scripts/A10-{hosts}-{i}.cfg', "w+")
+            backupFile.write(multiples_partitions)
+            
 a10_show_run_partitions()

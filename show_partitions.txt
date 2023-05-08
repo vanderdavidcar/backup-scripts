@@ -1,0 +1,19 @@
+Total Number of partitions configured:  13
+Max L3V partitions allowed:             64
+Max RBA partitions allowed:             128
+Total partitions allowed:               128
+Partition Name   L3V  Index  Max. Aflex  Admin Count 
+----------------------------------------------------
+1059585Hyb       Yes  2      32          0           
+1056875Hyb       Yes  3      32          0           
+1054548Hyb       Yes  4      32          0           
+IMusica          Yes  5      42          3           
+DCV-VCE          Yes  6      32          0           
+Hib1027891       Yes  7      32          0           
+1055840Hyb       Yes  10     32          0           
+1054548Intersi   Yes  12     32          0           
+1056875PubWebs   Yes  13     32          0           
+PORTAL-AMX       Yes  15     32          0           
+1056996_CDrive   Yes  17     32          0           
+Compartilhado    Yes  19     32          0           
+1072450Hyb       Yes  20     32          0           

@@ -6,3 +6,5 @@ check_version.py
 lab
 daily-backups.yml
 parse_model.py
+dev_connection.py
+show_partitions.txt
