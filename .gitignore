@@ -1,0 +1,12 @@
+.env
+*.cfg
+devices*
+router.db
+check_version.py
+lab
+daily-backups.yml
+parse_model.py
+<<<<<<< HEAD
+dev_connection.py
+show_partitions.txt
+2022_*
